@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/">
+        <file>templates/00_template_init.htm</file>
+        <file>templates/01_template_head.htm</file>
+        <file>templates/02_template_bodyInit.htm</file>
+        <file>templates/03_template_tableInit.htm</file>
+        <file>templates/04_template_tableHead.htm</file>
+        <file>templates/04_template_tableRow.htm</file>
+        <file>templates/04_template_tableSpacer.htm</file>
+        <file>templates/05_template_closeUpTable.htm</file>
+        <file>templates/05_template_closeUpTotal.htm</file>
+        <file>templates/templateCompleto.htm</file>
+    </qresource>
+</RCC>
