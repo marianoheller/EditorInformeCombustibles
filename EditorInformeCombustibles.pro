@@ -1,5 +1,7 @@
 QT      +=  webkitwidgets network widgets printsupport
 
+CONFIG += c++11
+
 HEADERS =   previewer.h \
             mainwindow.h
 SOURCES =   main.cpp \

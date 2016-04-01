@@ -3,6 +3,7 @@
 #include <QtPrintSupport/QPrinter>
 #include <QDialog>
 #include <QTimer>
+#include <QFileInfo>
 #include "mainwindow.h"
 
 //! [0]
@@ -24,23 +25,101 @@ MainWindow::MainWindow()
 }
 //! [0]
 
+bool MainWindow::fileExists(QString path)
+{
+    QFileInfo checkFile(path);
+    // check if file exists and if yes: Is it really a file and no directory?
+    if (checkFile.exists() && checkFile.isFile()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 void MainWindow::setDataTypeSets()
 {
-    QSet<QString> auxSet;
 
-    auxSet << "Gas Oil (grado 2)" << "FAME en Gas Oil" << "Azufre en Gas Oil";
-    dataTypeGroups.push_back(auxSet);
-    auxSet.clear();
+    // DATA TYPES SETS
+    if ( !fileExists(FILENAME_DATATYPES_SETS) )
+    {
+        QSet<QString> auxSet;
+        //Load DATA
+        auxSet << "Gas Oil (grado 2)" << "FAME en Gas Oil" << "Azufre en Gas Oil";
+        dataTypeGroups.push_back(auxSet);
+        auxSet.clear();
+        auxSet << "Nafta Super (grado 2)" << "RON y MON por IR" << "Azufre en Nafta Super";
+        dataTypeGroups.push_back(auxSet);
+        auxSet.clear();
+        auxSet << "Nafta Ultra (grado 3)" << "RON y MON por IR" << "Azufre en Nafta Ultra";
+        dataTypeGroups.push_back(auxSet);
+        auxSet.clear();
 
-    auxSet << "Nafta Super (grado 2)" << "RON y MON por IR" << "Azufre en Nafta Super";
-    dataTypeGroups.push_back(auxSet);
-    auxSet.clear();
+        if ( !QDir(FILENAME_DATATYPES_FOLDER).exists() )
+            QDir().mkdir(FILENAME_DATATYPES_FOLDER);
+        QFile file(FILENAME_DATATYPES_SETS);
+        if (!file.open(QIODevice::WriteOnly)) {
+            QMessageBox::information(this, tr("No se puede crear el archivo datatype sets"),
+                file.errorString());
+        }
+        QTextStream in(&file);
+        in << "Gas Oil (grado 2);" << "FAME en Gas Oil;" << "Azufre en Gas Oil" << endl;
+        in << "Nafta Super (grado 2);" << "RON y MON por IR;" << "Azufre en Nafta Super" << endl;
+        in << "Nafta Ultra (grado 3);" << "RON y MON por IR;" << "Azufre en Nafta Ultra" << endl;
+        file.close();
+    }
+    else
+    {
+        QSet<QString> auxSet;
+        QFile file(FILENAME_DATATYPES_SETS);
+        file.open(QFile::ReadOnly);
+        QTextStream s1(&file);
+        while (!s1.atEnd())
+        {
+            QStringList auxStringList;
+            QString line=s1.readLine(); // reads line from file
+            auxStringList=line.split(";");
+            for ( QString aux : auxStringList )
+                auxSet << aux;
+            dataTypeGroups.push_back(auxSet);
+            auxSet.clear();
+        }
+        file.close();
+    }
 
-    auxSet << "Nafta Ultra (grado 3)" << "RON y MON por IR" << "Azufre en Nafta Ultra";
-    dataTypeGroups.push_back(auxSet);
-    auxSet.clear();
+    // DATA TYPES EXCEPTIONS
+    if ( !fileExists(FILENAME_DATATYPES_EXCEPTIONS) )
+    {
+         dataTypeExpetions << "RON y MON por IR";
 
-    dataTypeExpetions << "RON y MON por IR";
+         if ( !QDir(FILENAME_DATATYPES_FOLDER).exists() )
+             QDir().mkdir(FILENAME_DATATYPES_FOLDER);
+         QFile file(FILENAME_DATATYPES_EXCEPTIONS);
+         if (!file.open(QIODevice::WriteOnly)) {
+             QMessageBox::information(this, tr("No se puede crear el archivo datatype sets"),
+                 file.errorString());
+         }
+         QTextStream in(&file);
+         in << "RON y MON por IR" << endl;
+
+         file.close();
+    }
+    else
+    {
+        QFile file(FILENAME_DATATYPES_EXCEPTIONS);
+        file.open(QFile::ReadOnly);
+        QTextStream s1(&file);
+        while (!s1.atEnd())
+        {
+            QStringList auxStringList;
+            QString line=s1.readLine(); // reads line from file
+            auxStringList=line.split(";");
+            for ( QString aux : auxStringList )
+                dataTypeExpetions << aux;
+        }
+
+    }
+
+
 }
 
 //! [1]

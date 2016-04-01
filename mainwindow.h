@@ -71,6 +71,11 @@ const QString rsrcTemplatesPath = ":/templates";
 #define FILENAME_TEMPLATE05_2     ":/templates/05_template_closeUpTotal.htm"
 
 
+#define FILENAME_DATATYPES_FOLDER             "parametros"
+#define FILENAME_DATATYPES_SETS               "parametros/parametrosEnsayos.txt"
+#define FILENAME_DATATYPES_EXCEPTIONS         "parametros/parametrosEnsayosComunes.txt"
+
+
 enum {
     eDataType_GasOil=0,
     eDataType_Nafta_g2,
@@ -122,6 +127,7 @@ private:
     void createMenus();
     void setStartupText();
     void setDataTypeSets();
+    bool fileExists(QString path);
     bool parseLoadCSV(const QString &f);
     QString transformCSVtoHTML(QVector<QStringList> * data);
     QVector< QSet<QString> > dataTypeGroups;
