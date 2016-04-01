@@ -12,22 +12,11 @@ MainWindow::MainWindow()
     createMenus();
     centralWidget = new Previewer(this);
     setCentralWidget(centralWidget);
+
     this->setWindowTitle("Editor - Informe Combustibles");
+    centralWidget->editorBox->setVisible(false);
 
-
-    QSet<QString> auxSet;
-
-    auxSet << "Gas Oil (grado 2)" << "FAME en Gas Oil" << "Azufre en Gas Oil ";
-    dataTypeGroups.push_back(auxSet);
-    auxSet.clear();
-
-    auxSet << "Nafta Super (grado 2)" << "RON y MON por IR" << "Azufre en Nafta Super ";
-    dataTypeGroups.push_back(auxSet);
-    auxSet.clear();
-
-    auxSet << "Nafta Ultra (grado 3)" << "RON y MON por IR" << "Azufre en Nafta Ultra";
-    dataTypeGroups.push_back(auxSet);
-    auxSet.clear();
+    setDataTypeSets();
 
     connect(centralWidget->webView, SIGNAL(loadFinished(bool)),
         this, SLOT(updateTextEdit()));
@@ -35,49 +24,71 @@ MainWindow::MainWindow()
 }
 //! [0]
 
+void MainWindow::setDataTypeSets()
+{
+    QSet<QString> auxSet;
+
+    auxSet << "Gas Oil (grado 2)" << "FAME en Gas Oil" << "Azufre en Gas Oil";
+    dataTypeGroups.push_back(auxSet);
+    auxSet.clear();
+
+    auxSet << "Nafta Super (grado 2)" << "RON y MON por IR" << "Azufre en Nafta Super";
+    dataTypeGroups.push_back(auxSet);
+    auxSet.clear();
+
+    auxSet << "Nafta Ultra (grado 3)" << "RON y MON por IR" << "Azufre en Nafta Ultra";
+    dataTypeGroups.push_back(auxSet);
+    auxSet.clear();
+
+    dataTypeExpetions << "RON y MON por IR";
+}
+
 //! [1]
 void MainWindow::createActions()
 {
-    openAct = new QAction(tr("&Open..."), this);
+    openAct = new QAction(tr("&Abrir..."), this);
     openAct->setShortcuts(QKeySequence::Open);
     openAct->setStatusTip(tr("Open an existing HTML file"));
+    openAct->setDisabled(true);
     connect(openAct, SIGNAL(triggered()), this, SLOT(open()));
 
-    openCSV = new QAction(tr("&Open CSV..."), this);
+    openCSV = new QAction(tr("&Abrir CSV..."), this);
     connect(openCSV, SIGNAL(triggered()), this, SLOT(CSVOpen()));
 
-    openUrlAct = new QAction(tr("&Open URL..."), this);
+    openUrlAct = new QAction(tr("&Abrir URL..."), this);
     openUrlAct->setShortcut(tr("Ctrl+U"));
     openUrlAct->setStatusTip(tr("Open a URL"));
+    openUrlAct->setDisabled(true);
     connect(openUrlAct, SIGNAL(triggered()), this, SLOT(openUrl()));
 //! [1]
 
-    saveAct = new QAction(tr("&Save"), this);
+    saveAct = new QAction(tr("&Guardar"), this);
     saveAct->setShortcuts(QKeySequence::Save);
     saveAct->setStatusTip(tr("Save the HTML file to disk"));
+    saveAct->setDisabled(true);
     connect(saveAct, SIGNAL(triggered()), this, SLOT(save()));
 
-    exitAct = new QAction(tr("E&xit"), this);
+    exitAct = new QAction(tr("Salir"), this);
     exitAct->setStatusTip(tr("Exit the application"));
     exitAct->setShortcuts(QKeySequence::Quit);
     connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
 
-    aboutAct = new QAction(tr("&About"), this);
+    aboutAct = new QAction(tr("&Acerca de.."), this);
     aboutAct->setStatusTip(tr("Show the application's About box"));
     connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
 
-    aboutQtAct = new QAction(tr("About &Qt"), this);
-    aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
+    aboutQtAct = new QAction(tr("Acerca de &Qt"), this);
+    aboutQtAct->setStatusTip(tr("Muestra informacion sobre la libreria Qt"));
     connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 
-    pdfAct = new QAction(tr("&Export PDF..."), this);
+    pdfAct = new QAction(tr("&Exportar PDF..."), this);
     connect(pdfAct, SIGNAL(triggered()), this, SLOT(filePrintPdf()));
 }
 
 //! [2]
 void MainWindow::createMenus()
 {
-    fileMenu = menuBar()->addMenu(tr("&File"));
+    fileMenu = menuBar()->addMenu(tr("&Archivo"));
     fileMenu->addAction(openAct);
     fileMenu->addAction(openCSV);
     fileMenu->addAction(openUrlAct);
@@ -89,7 +100,7 @@ void MainWindow::createMenus()
 
     menuBar()->addSeparator();
 
-    helpMenu = menuBar()->addMenu(tr("&Help"));
+    helpMenu = menuBar()->addMenu(tr("&Ayuda"));
     helpMenu->addAction(aboutAct);
     helpMenu->addAction(aboutQtAct);
 }
@@ -123,9 +134,9 @@ void MainWindow::filePrintPdf()
 //! [3]
 void MainWindow::about()
 {
-    QMessageBox::about(this, tr("About Previewer"),
-        tr("The <b>Previewer</b> example demonstrates how to "
-           "view HTML documents using a QWebView."));
+    QMessageBox::about(this, tr("Acerca de.."),
+        tr("El <b>Editor de informes</b> permite editar "
+           "los informes exportados con formato CSV."));
 }
 //! [3]
 
@@ -210,8 +221,8 @@ void MainWindow::updateTextEdit()
 //! [8]
 void MainWindow::setStartupText()
 {
-    QString string = "<html><body><h1>HTML</h1>"
-                     " <p>test.</p>"
+    QString string = "<html><body><h1>Editor de informes</h1>"
+                     " <p>Abra un archivo CSV para generar la tabla</p>"
                      " </body></html>";
     centralWidget->webView->setHtml(string);
 }
@@ -246,10 +257,11 @@ bool MainWindow::parseLoadCSV(const QString &f)
             int k;
             while( (k=returnDeleterString.indexOf("\r")) != -1)
                 returnDeleterString.remove(k,1);
+            //Trim
+            returnDeleterString = returnDeleterString.trimmed();
             //And add a spacing on empty string, for html porpouses
             if (returnDeleterString.isEmpty())
                 returnDeleterString = "&zwnj;";
-
             csvRawData[i].replace(j,returnDeleterString);
 
 
@@ -308,6 +320,7 @@ QString MainWindow::transformCSVtoHTML(QVector<QStringList> * data)
     ///Table Data
     QString headCol_01_Ant = "";
     int dataType_last=0;
+    bool fFistDataType = true;  //Para safar del primer spacer (antes del primer item)
     for ( int i=0 ; i<data->size() ; i++)
     {
         if ( data->at(i).at(TABLA_HEAD_1) != headCol_01_Ant)        //if different, insert header AND data
@@ -318,7 +331,8 @@ QString MainWindow::transformCSVtoHTML(QVector<QStringList> * data)
             {
                 if( dataTypeGroups.at(dataType_aux).contains( data->at(i).at(TABLA_HEAD_1) ) )
                 {
-                    if ( data->at(i).at(TABLA_HEAD_1) == "RON y MON por IR" )   //Excepcion xq este campo se repite
+                    //if ( data->at(i).at(TABLA_HEAD_1) == "RON y MON por IR" )   //Excepcion xq este campo se repite
+                    if ( dataTypeExpetions.contains( data->at(i).at(TABLA_HEAD_1) ) )   //Excepcion xq este campo se repite
                         dataType_index = dataType_last;
                     else
                         dataType_index = dataType_aux;
@@ -326,12 +340,8 @@ QString MainWindow::transformCSVtoHTML(QVector<QStringList> * data)
             }
 
             //Put Spacer
-            //if( !dataTypeGroups.at(dataType_last).contains( data->at(i).at(TABLA_HEAD_1) ) )
-            if ( dataType_index != dataType_last )
+            if ( dataType_index != dataType_last && fFistDataType==false )
             {
-//                dataType_last++;
-//                dataType_last %= dataTypeGroups.size();
-                dataType_last = dataType_index;
                 file.setFileName(FILENAME_TEMPLATE04_3);
                 if (!file.open(QFile::ReadOnly))
                     return QString("Template not found");
@@ -339,7 +349,8 @@ QString MainWindow::transformCSVtoHTML(QVector<QStringList> * data)
                 htmlParsedText.append(auxTemplateA);
                 file.close();
             }
-
+            dataType_last = dataType_index;
+            //Add Head
             file.setFileName(FILENAME_TEMPLATE04_1);
             if (!file.open(QFile::ReadOnly))
                 return QString("Template not found");
@@ -352,7 +363,7 @@ QString MainWindow::transformCSVtoHTML(QVector<QStringList> * data)
             htmlParsedText.append(auxTemplate);
             file.close();
 
-
+            //Add Data
             file.setFileName(FILENAME_TEMPLATE04_2);
             if (!file.open(QFile::ReadOnly))
                 return QString("Template not found");
@@ -380,6 +391,7 @@ QString MainWindow::transformCSVtoHTML(QVector<QStringList> * data)
             file.close();
         }
         headCol_01_Ant = data->at(i).at(TABLA_HEAD_1);
+        fFistDataType = false;
     }
 
     ///Close up

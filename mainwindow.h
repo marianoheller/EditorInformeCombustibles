@@ -121,9 +121,11 @@ private:
     void createActions();
     void createMenus();
     void setStartupText();
+    void setDataTypeSets();
     bool parseLoadCSV(const QString &f);
     QString transformCSVtoHTML(QVector<QStringList> * data);
     QVector< QSet<QString> > dataTypeGroups;
+    QSet<QString> dataTypeExpetions;
 };
 //! [1]
 
