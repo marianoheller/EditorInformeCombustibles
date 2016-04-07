@@ -59,6 +59,9 @@ const QString rsrcTemplatesPath = ":/templates";
 #define TABLA_DATCOL_4  13
 #define TABLA_DATCOL_5  14
 
+#define TABLA_TOTAL_COLUMNAS    5
+#define TABLA_MAX_INDEX         TABLA_DATCOL_5
+
 
 #define FILENAME_TEMPLATE00       ":/templates/00_template_init.htm"
 #define FILENAME_TEMPLATE01       ":/templates/01_template_head.htm"

@@ -368,6 +368,20 @@ QString MainWindow::transformCSVtoHTML(QVector<QStringList> * data)
 {
     QString htmlParsedText;
 
+    ///Check for valid File
+    int auxDataSize = data->size()-1;
+    for ( int i=auxDataSize ; i>=0 ; i--) {
+        if ( data->at(i).size() < TABLA_MAX_INDEX )
+            data->remove(i);
+    }
+    if ( data->isEmpty()) {
+        QString string = "<html><body><h1>Error</h1>"
+                         " <p>Error al cargar el archivo. Formato erroneo.</p>"
+                         " </body></html>";
+        return string;
+    }
+
+
     ///Init
     QFile file(FILENAME_TEMPLATE00);
     if (!file.open(QFile::ReadOnly))
